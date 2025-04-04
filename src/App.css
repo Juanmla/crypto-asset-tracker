@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@property --dark-bg-color {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #21211f;
+}
+
+@property --h1-color {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #5fbb97;
+}
+
+@layer base {
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--h1-color);
+  }
+}
+
+body {
+  background-color: var(--dark-bg-color);
+  color: #fff;
+}
