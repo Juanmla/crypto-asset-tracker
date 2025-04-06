@@ -5,9 +5,12 @@ import {
 } from "./services/coins";
 import dayjs from "dayjs";
 import { loadFromLocalStorage, saveToLocalStorage } from "./utils/localStorage";
+import { useAccount } from "wagmi";
 
 import CryptoSelect from "./components/CryptoSelect";
 import Chart from "./components/Chart";
+import WalletOptions from "./components/WalletOptions";
+import Account from "./components/Account";
 import { Coin, DaysRangeEnum, type SelectOption } from "./utils/types";
 
 import "./App.css";
@@ -66,10 +69,19 @@ function App() {
       : [];
   }, [priceHistoryData]);
 
+  const ConnectWallet = () => {
+    const { isConnected } = useAccount();
+    if (isConnected) return <Account />;
+    return <WalletOptions />;
+  };
+
   return (
     <div className="flex flex-col items-center h-screen p-5">
+      <div className="inline-flex justify-end w-full p-5">
+        <ConnectWallet />
+      </div>
       <h1>Crypto Asset Tracker</h1>
-      <p>Track your favourite crypto stats</p>
+      <p>Track your favourite crypto</p>
       <div className="flex flex-col w-4xl items-center gap-4 mt-4">
         <div className="w-sm p-5">
           {!!formattedCoinListData.length && (
@@ -91,6 +103,11 @@ function App() {
           )}
         </div>
       </div>
+      <footer className="mt-auto text-gray-500">
+        <small>
+          Powered by CoinGecko API & Crafted by Juan Manuel Lamperti
+        </small>
+      </footer>
     </div>
   );
 }
