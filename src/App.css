@@ -9,7 +9,7 @@
 @property --h1-color {
   syntax: "<color>";
   inherits: false;
-  initial-value: #5fbb97;
+  initial-value: #fff;
 }
 
 @layer base {
@@ -21,6 +21,12 @@
 }
 
 body {
-  background-color: var(--dark-bg-color);
+  background-color: #0f172a;
+  background-image: radial-gradient(
+      at 10% 20%,
+      rgba(30, 41, 59, 0.5) 0px,
+      transparent 50%
+    ),
+    radial-gradient(at 90% 80%, rgba(30, 41, 59, 0.5) 0px, transparent 50%);
   color: #fff;
 }

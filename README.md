@@ -1,54 +1,41 @@
-# React + TypeScript + Vite
+# 🚀 Crypto Asset Tracker & Comparator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web app to **track, analyze, and compare** cryptocurrency performance with integrated wallet support.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 📊 Real-Time Asset Analysis
 
-## Expanding the ESLint configuration
+- Historical price charts (24h to 1 year)
+- Normalized comparison for accurate ROI visualization
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🔗 Wallet Integration
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- Connect MetaMask
+- ENS avatar/name support (`.eth` domains)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 🔍 Side-by-Side Comparison
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Compare any two cryptocurrencies
+- Unified timeline for performance analysis
+- Dynamic tooltips with price differentials
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## 🛠 Tech Stack
+
+| Area             | Technologies Used               |
+| ---------------- | ------------------------------- |
+| Frontend         | React, TypeScript, Tailwind CSS |
+| State Management | Redux, RTK Query                |
+| Charting         | Recharts                        |
+| Wallet SDK       | Wagmi, Viem                     |
+| API              | CoinGecko API                   |
+| Build tool       | Vite                            |
+| Tests            | Vitest, React Testing Library   |
+
+1. Clone the repo:
+   git clone https://github.com/Juanmla/crypto-asset-tracker.git
+2. pnpm install or npm install
+3. Run locally: pnpm dev
+4. Run tests: pnpm run test
+
+This app uses Coingecko API (Public). In case reaching Coingecko rate limit, follow this: https://docs.coingecko.com/v3.0.1/reference/common-errors-rate-limit

@@ -12,40 +12,63 @@ import { DaysRangeEnum } from "../utils/types";
 
 type PriceData = {
   date: string;
-  price: number;
+  [coinId: string]: number | string; // Dynamic keys for coin prices
 };
 
 type ChartProps = {
   data: PriceData[];
   setDaysRange: (days: number) => void;
   daysRange: number;
+  showComparison?: boolean;
+  selectedCoin: string;
+  compareCoin: string;
 };
 
-// Custom tooltip that includes date and price
+type TooltipPayload = {
+  value: number;
+  name: string;
+  payload: PriceData;
+  color: string;
+  dataKey: string;
+}[];
+
+// Custom tooltip that shows both prices when comparing
 const CustomTooltip = ({
   active,
   payload,
   label,
 }: {
   active?: boolean;
-  payload?: Array<{ value: number; payload: PriceData }>;
+  payload?: TooltipPayload;
   label?: string;
 }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-black/80 text-white rounded-sm p-2">
         <p className="text-xs m-0">{`Date: ${label}`}</p>
-        <p className="text-sm font-bold m-0">{`Price: $${payload[0].value.toFixed(
-          4
-        )}`}</p>
+        {payload.map((entry) => (
+          <p
+            key={entry.dataKey}
+            className="text-sm font-bold m-0"
+            style={{ color: entry.color }}
+          >
+            {`${entry.name}: $${entry.value.toFixed(4)}`}
+          </p>
+        ))}
       </div>
     );
   }
-
   return null;
 };
 
-export default function Chart({ data, setDaysRange, daysRange }: ChartProps) {
+export default function Chart({
+  data,
+  setDaysRange,
+  daysRange,
+  showComparison,
+  selectedCoin,
+  compareCoin,
+}: ChartProps) {
   if (!data || data.length === 0) {
     return <div>No data available</div>;
   }
@@ -94,27 +117,34 @@ export default function Chart({ data, setDaysRange, daysRange }: ChartProps) {
     );
   };
 
-  const formatYAxis = (value: number) => `$${value.toFixed(2)}`;
-
   return (
     <div className="w-full">
       <div className="flex justify-end">
         <RangeDatePicker />
       </div>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={400}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis tickFormatter={formatYAxis} />
+          <YAxis tickFormatter={(value) => `$${value.toFixed(2)}`} />
           <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" height={36} />
+          <Legend />
           <Line
             type="monotone"
-            dataKey="price"
-            stroke="#6BAB90"
-            strokeWidth={2}
+            dataKey={selectedCoin}
+            stroke="#8884d8"
             dot={false}
+            name={selectedCoin.toUpperCase()}
           />
+          {showComparison && compareCoin && (
+            <Line
+              type="monotone"
+              dataKey={compareCoin}
+              stroke="#82ca9d"
+              dot={false}
+              name={compareCoin.toUpperCase()}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     </div>

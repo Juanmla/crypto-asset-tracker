@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Connector, useConnect } from "wagmi";
-import MetamaskSvg from "../../public/metamask.svg";
+import MetamaskSvg from "../assets/images/metamask.svg";
 
 const WalletOption = ({
   connector,
