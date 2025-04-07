@@ -4,15 +4,18 @@ import {
   useGetPriceHistoryQuery,
 } from "./services/coins";
 import dayjs from "dayjs";
-import { loadFromLocalStorage, saveToLocalStorage } from "./utils/localStorage";
 import { useAccount } from "wagmi";
+import { loadFromLocalStorage, saveToLocalStorage } from "./utils/localStorage";
 import { normalizeData } from "./utils/normalize";
-
-import CryptoSelect from "./components/CryptoSelect";
-import Chart from "./components/Chart";
-import WalletOptions from "./components/WalletOptions";
-import Account from "./components/Account";
 import { Coin, DaysRangeEnum, type SelectOption } from "./utils/types";
+
+import {
+  CryptoSelect,
+  Chart,
+  WalletOptions,
+  Account,
+  CryptoStatsBar,
+} from "./components/index";
 
 import "./App.css";
 
@@ -25,17 +28,27 @@ function App() {
   const [cachedCoinList, setCachedCoinList] = useState<Coin[]>([]);
   const [showComparison, setShowComparison] = useState<boolean>(false);
 
-  const { data: coinListData, isSuccess: isSuccessGetCoinList } =
-    useGetCoinsListQuery();
-  const { data: priceHistoryData, isSuccess: isSuccessGetPriceHistory } =
-    useGetPriceHistoryQuery(
-      {
-        coinId: selectedCoin,
-        days: daysRange,
-      },
-      { skip: !selectedCoin }
-    );
+  // Fetch the coin list from the API
+  const {
+    data: coinListData,
+    isSuccess: isSuccessGetCoinList,
+    error: coinListError,
+  } = useGetCoinsListQuery(undefined, { skip: cachedCoinList.length > 0 });
 
+  // Fetch the price history for the selected coin
+  const {
+    data: priceHistoryData,
+    isSuccess: isSuccessGetPriceHistory,
+    error: priceHistoryError,
+  } = useGetPriceHistoryQuery(
+    {
+      coinId: selectedCoin,
+      days: daysRange,
+    },
+    { skip: !selectedCoin }
+  );
+
+  // Fetch the price history for the comparison coin
   const { data: comparePriceHistoryData } = useGetPriceHistoryQuery(
     {
       coinId: compareCoin,
@@ -46,18 +59,20 @@ function App() {
 
   // Load cached coin list if it exists and is fresh - 1 day old
   useEffect(() => {
-    const cached = loadFromLocalStorage("coinListCache", DAY_IN_MS);
-    const isValidCoinCachedList = // Ensure all items from cache are valid
-      Array.isArray(cached) &&
-      cached.every((item) => item.id && item.name && item.image);
+    const cached = loadFromLocalStorage<Coin[]>("coinListCache", DAY_IN_MS);
 
-    if (isValidCoinCachedList) {
-      setCachedCoinList(cached as Coin[]);
-    } else if (isSuccessGetCoinList && coinListData) {
+    if (cached) {
+      setCachedCoinList(cached);
+      // skip API call if we have valid cached data
+      return;
+    }
+
+    // Only fetch if no cache exists
+    if (isSuccessGetCoinList && coinListData && !cachedCoinList.length) {
       saveToLocalStorage("coinListCache", coinListData);
       setCachedCoinList(coinListData);
     }
-  }, [coinListData, isSuccessGetCoinList]);
+  }, [coinListData, isSuccessGetCoinList, cachedCoinList.length]);
 
   // Format the coin list data for select options (considering cached data)
   const formattedCoinListData: SelectOption[] = useMemo(() => {
@@ -109,70 +124,98 @@ function App() {
 
   const ConnectWallet = () => {
     const { isConnected } = useAccount();
-    if (isConnected) return <Account />;
+    if (isConnected)
+      return (
+        <Account
+          ethereumData={cachedCoinList.find((coin) => coin.id === "ethereum")}
+        />
+      );
     return <WalletOptions />;
   };
 
   return (
-    <div className="flex flex-col items-center h-screen p-5">
-      <div className="inline-flex justify-end w-full p-5">
-        <ConnectWallet />
-      </div>
-      <h1>Crypto Asset Tracker</h1>
-      <p>Track your favourite crypto</p>
-      <div className="flex flex-col w-4xl items-center gap-4 mt-4">
-        <div className="w-sm p-5">
-          {!!formattedCoinListData.length && (
-            <>
-              <CryptoSelect
-                options={formattedCoinListData}
-                onChangeHandler={(option: SelectOption) => {
-                  setSelectedCoin(option?.value || "");
-                }}
-              />
-              <div className="flex items-center mt-2 mb-2">
-                <input
-                  type="checkbox"
-                  id="compareToggle"
-                  checked={showComparison}
-                  onChange={() => setShowComparison(!showComparison)}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <label
-                  htmlFor="compareToggle"
-                  className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >
-                  Compare with another asset
-                </label>
-              </div>
-
-              {showComparison && (
+    <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col items-center p-5 flex-grow">
+        <div className="inline-flex justify-end w-full p-5">
+          <ConnectWallet />
+        </div>
+        <h1>Crypto Asset Tracker</h1>
+        <p>Track your favourite crypto</p>
+        {coinListError && (
+          <div className="text-red-500">
+            Error loading coin list: The API is not responding. Please try again
+            later.
+          </div>
+        )}
+        {priceHistoryError && (
+          <div className="text-red-500">
+            Error loading price history: Wait a moment and reload the page.
+          </div>
+        )}
+        <div className="flex flex-col w-4xl items-center gap-4 mt-4">
+          <div className="w-sm p-5">
+            {!!formattedCoinListData.length && (
+              <>
                 <CryptoSelect
-                  options={formattedCoinListData.filter(
-                    (coin) => coin.value !== selectedCoin
-                  )}
+                  options={formattedCoinListData}
                   onChangeHandler={(option: SelectOption) => {
-                    setCompareCoin(option?.value || "");
+                    setSelectedCoin(option?.value || "");
                   }}
                 />
-              )}
-            </>
-          )}
-        </div>
-        <div className="flex w-full p-5">
-          {isSuccessGetPriceHistory && (
-            <Chart
-              data={normalizedChartData}
-              daysRange={daysRange}
-              setDaysRange={setDaysRange}
-              showComparison={showComparison}
-              selectedCoin={selectedCoin}
-              compareCoin={compareCoin}
+                <div className="flex items-center mt-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="compareToggle"
+                    checked={showComparison}
+                    onChange={() => setShowComparison(!showComparison)}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <label
+                    htmlFor="compareToggle"
+                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >
+                    Compare with another asset
+                  </label>
+                </div>
+
+                {showComparison && (
+                  <CryptoSelect
+                    options={formattedCoinListData.filter(
+                      (coin) => coin.value !== selectedCoin
+                    )}
+                    onChangeHandler={(option: SelectOption) => {
+                      setCompareCoin(option?.value || "");
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </div>
+          <div className="flex w-full p-5">
+            <CryptoStatsBar
+              coin={cachedCoinList.find((c) => c.id === selectedCoin)}
+              compareCoin={
+                showComparison
+                  ? cachedCoinList.find((c) => c.id === compareCoin)
+                  : undefined
+              }
             />
-          )}
+          </div>
+          <div className="flex w-full p-5 mb-8">
+            {isSuccessGetPriceHistory && (
+              <Chart
+                data={normalizedChartData}
+                daysRange={daysRange}
+                setDaysRange={setDaysRange}
+                showComparison={showComparison}
+                selectedCoin={selectedCoin}
+                compareCoin={compareCoin}
+              />
+            )}
+          </div>
         </div>
       </div>
-      <footer className="mt-auto text-gray-500">
+      <footer className="mt-auto text-gray-500 self-center">
         <small>
           Powered by CoinGecko API & Crafted by Juan Manuel Lamperti
         </small>

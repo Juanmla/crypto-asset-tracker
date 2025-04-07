@@ -1,7 +1,7 @@
 import Select, { type StylesConfig } from "react-select";
 import { type CryptoSelectProps, type SelectOption } from "../utils/types";
 
-const CryptoSelect = ({
+export const CryptoSelect = ({
   options,
   defaultValue,
   onChangeHandler,
@@ -58,5 +58,3 @@ const CryptoSelect = ({
     />
   );
 };
-
-export default CryptoSelect;

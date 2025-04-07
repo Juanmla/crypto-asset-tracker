@@ -8,8 +8,8 @@ export const coinsApi = createApi({
   }),
   endpoints: (builder) => ({
     getCoinsList: builder.query<Coin[], void>({
-      query: () =>
-        "/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=3",
+      query: () => "/markets?vs_currency=usd&order=market_cap_desc",
+      keepUnusedDataFor: 86400, // 24 hours
     }),
     getPriceHistory: builder.query<
       { prices: [number, number][] },

@@ -31,7 +31,7 @@ const WalletOption = ({
   );
 };
 
-const WalletOptions = () => {
+export const WalletOptions = () => {
   const { connectors, connect } = useConnect();
 
   return connectors.map((connector) => (
@@ -42,5 +42,3 @@ const WalletOptions = () => {
     />
   ));
 };
-
-export default WalletOptions;

@@ -3,6 +3,11 @@ export type Coin = {
   name: string;
   symbol: string;
   image: string;
+  market_cap_rank?: number;
+  market_cap?: number;
+  total_volume?: number;
+  total_supply?: number;
+  current_price?: number;
 };
 
 export type CryptoSelectProps = {

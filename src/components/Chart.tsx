@@ -12,7 +12,7 @@ import { DaysRangeEnum } from "../utils/types";
 
 type PriceData = {
   date: string;
-  [coinId: string]: number | string; // Dynamic keys for coin prices
+  [coinId: string]: number | string; // dynamic keys for coin prices
 };
 
 type ChartProps = {
@@ -61,14 +61,14 @@ const CustomTooltip = ({
   return null;
 };
 
-export default function Chart({
+export const Chart = ({
   data,
   setDaysRange,
   daysRange,
   showComparison,
   selectedCoin,
   compareCoin,
-}: ChartProps) {
+}: ChartProps) => {
   if (!data || data.length === 0) {
     return <div>No data available</div>;
   }
@@ -126,7 +126,10 @@ export default function Chart({
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis tickFormatter={(value) => `$${value.toFixed(2)}`} />
+          <YAxis
+            width={100}
+            tickFormatter={(value) => `$${value.toFixed(2)}`}
+          />
           <Tooltip content={<CustomTooltip />} />
           <Legend />
           <Line
@@ -149,4 +152,4 @@ export default function Chart({
       </ResponsiveContainer>
     </div>
   );
-}
+};

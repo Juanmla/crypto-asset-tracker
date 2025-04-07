@@ -12,6 +12,9 @@ import { vi, test, expect, describe, beforeEach } from "vitest";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import { Coin } from "../src/utils/types";
+import { WagmiProvider } from "wagmi";
+import { config } from "../src/lib/config";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Mock the modules with vi.mock
 vi.mock("../src/services/coins");
@@ -31,6 +34,8 @@ const ResizeObserverMock = vi.fn(() => ({
 }));
 
 vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+const queryClient = new QueryClient();
 
 describe("App Component", () => {
   const mockCoinList: Coin[] = [
@@ -88,7 +93,13 @@ describe("App Component", () => {
 
     mockedLoadFromLocalStorage.mockReturnValue(undefined); // simulates empty cache
 
-    render(<App />);
+    render(
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
 
     await waitFor(() => {
       expect(mockedSaveToLocalStorage).toHaveBeenCalledWith(
@@ -116,15 +127,19 @@ describe("App Component", () => {
       refetch: vi.fn(),
     });
 
-    render(<App />);
+    render(
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
 
     // Verify main heading and description
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "Crypto Asset Tracker"
     );
-    expect(
-      screen.getByText("Track your favourite crypto stats")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Track your favourite crypto")).toBeInTheDocument();
 
     // Wait for and verify crypto select appears
     await waitFor(() => {
