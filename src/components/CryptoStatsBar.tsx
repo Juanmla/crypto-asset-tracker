@@ -5,15 +5,27 @@ interface CryptoStatsBarProps {
   compareCoin?: Coin;
 }
 
+const isNumeric = (num: number | string) => {
+  return (
+    !Number.isNaN(num) ||
+    typeof num === "number" ||
+    (typeof num === "string" && num.trim() !== "")
+  );
+};
+
 const formatNumber = (num?: number): string => {
-  if (!num) return "N/A";
+  if (num === undefined || num === null || !isNumeric(num)) {
+    return "N/A";
+  }
   if (num >= 1e9) return `$${(num / 1e9).toFixed(2)}B`;
   if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
   return `$${num.toFixed(2)}`;
 };
 
 const formatSupply = (num?: number): string => {
-  if (!num) return "N/A";
+  if (num === undefined || num === null || !isNumeric(num)) {
+    return "N/A";
+  }
   return num.toLocaleString();
 };
 

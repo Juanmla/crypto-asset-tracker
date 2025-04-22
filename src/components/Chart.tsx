@@ -125,10 +125,18 @@ export const Chart = ({
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <XAxis
+            dataKey="date"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12 }}
+            textAnchor="end"
+            interval={0}
+          />
           <YAxis
             width={100}
             tickFormatter={(value) => `$${value.toFixed(2)}`}
+            padding={{ bottom: 15 }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Legend />
